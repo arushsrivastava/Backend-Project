@@ -1,0 +1,22 @@
+{
+  "name": "backend-project",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/arushsrivastava/Backend-Project.git"
+  },
+  "author": "Arush Srivastava",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/arushsrivastava/Backend-Project/issues"
+  },
+  "homepage": "https://github.com/arushsrivastava/Backend-Project#readme",
+  "description": "",
+  "dependencies": {
+    "express": "^5.1.0"
+  }
+}
