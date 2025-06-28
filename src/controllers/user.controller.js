@@ -337,6 +337,12 @@ const changeCurrentPassword = asyncHandler(async (req, res) => {
 
 const getUserChannelProfile = asyncHandler(async (req, res) => {
 
+    const curr_user_username = req.user?.username;
+
+    if(!curr_user_username){
+        throw new ApiError(401, 'User not found');
+    }
+
     const {username} = req.params;
 
     if(!username.trim()){
@@ -385,7 +391,13 @@ const getUserChannelProfile = asyncHandler(async (req, res) => {
             avatar: 1,
             subscribersCount: 1,
             channelsSubscribedToCount: 1,
-            isSubscribed: 1,
+            isSubscribed: {
+                $cond: {
+                  if: { $ne: ["$username", req.user.username] },
+                  then: "$isSubscribed",
+                  else: "$$REMOVE"  // Removes the field from the final output
+                }
+            },
             username: 1,
           }
         }
