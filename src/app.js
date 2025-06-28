@@ -23,7 +23,9 @@ import subscriptionRouter from './routes/subscription.routes.js'
 
 app.use('/api/v1/users',userRouter);
 app.use('/api/v1/subscription',subscriptionRouter)
-
+app.get("/", (req, res) => {
+    res.send("Welcome to the Video Sharing Backend API 🚀");
+  });
 
 
 export  {app}
