@@ -4,6 +4,7 @@ import { uploadOnCloudinary } from '../utils/cloudinary.js';
 import {User} from '../models/user.model.js';
 import {ApiResponse} from '../utils/ApiResponse.js';
 import jwt from 'jsonwebtoken';
+import { Subscription } from '../models/subscription.model.js';
 
 const generateAccessAndRefreshTokens = async (userID) => {
     try{
@@ -279,6 +280,126 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
     
 })
 
+const changeCurrentPassword = asyncHandler(async (req, res) => {
+    // take new password and current password from body
+    // check if curr password is correct
+    // set new password
+
+    // DONT DO LIKE THIS 👇
+
+    // incomingRefreshToken = req.cookies?.refreshToken || req.body.refreshToken;
+    // if(!incomingRefreshToken){
+    //     throw new ApiError(401, 'No refresh token provided');
+    // }
+    // const decodedToken = jwt.verify(incomingRefreshToken, process.env.REFRESH_TOKEN_SECRET);
+    // const user = await User.findById(decodedToken?._id);
+
+    const {currentPassword, newPassword,} = req.body;
+
+    const user = await User.findById(req.user?._id);
+
+    if(!user){
+        throw new ApiError(401, 'Invalid refresh token');
+    }
+
+    if(!await user.isPasswordCorrect(currentPassword)){
+        throw new ApiError(401, 'Current password is incorrect');
+    }
+
+    //DONT'T DO LIKE THIS 👇  PASSWORD WILL NOT BE STORED IN PLAIN TEXT 🔴
+    // await User.findByIdAndUpdate(user._id, 
+    //      {
+    //         $set :{
+    //         password: newPassword,
+    //         }
+    //     }
+    //     ,
+    //     {
+    //         new: true,
+    //     }
+        
+    // )
+
+    user.password=newPassword;
+    await user.save({validateBeforeSave : false});
+
+    return res
+    .status(200)
+    .json(
+        new ApiResponse(200, {}, "Password changed successfully")
+    )
+
+   
+})
 
 
-export {registerUser, loginUser, logoutUser, refreshAccessToken};
+// getuser, update profile details, change avatar, change cover image
+
+const getUserChannelProfile = asyncHandler(async (req, res) => {
+
+    const {username} = req.params;
+
+    if(!username.trim()){
+        throw new ApiError(400, 'Username is missing');
+    }
+
+    const channel = await User.aggregate([
+        {
+          $match: {
+            username: username?.toLowerCase(),
+          }
+        },
+        {
+          $lookup: {
+            from: 'subscriptions',
+            localField: '_id',
+            foreignField: 'channel',
+            as: 'subscribers',
+          }
+        },
+        {
+          $lookup: {
+            from: 'subscriptions',
+            localField: '_id',
+            foreignField: 'subscriber',
+            as: 'subscribedTo',
+          }
+        },
+        {
+          $addFields: {
+            subscribersCount: { $size: "$subscribers" },
+            channelsSubscribedToCount: { $size: "$subscribedTo" },
+            isSubscribed: {
+              $cond: {
+                if: { $in: [req.user?._id, "$subscribers.subscriber"] },
+                then: true,
+                else: false,
+              }
+            }
+          }
+        },
+        {
+          $project: {
+            fullName: 1,
+            email: 1,
+            avatar: 1,
+            subscribersCount: 1,
+            channelsSubscribedToCount: 1,
+            isSubscribed: 1,
+            username: 1,
+          }
+        }
+      ]);
+
+    if(!channel?.length){
+        throw new ApiError(404, 'Channel does not exist');
+    }
+
+    return res
+    .status(200)
+    .json(
+        new ApiResponse(200, channel[0], "Channel profile fetched successfully")
+    )
+})
+
+export {registerUser, loginUser, logoutUser, refreshAccessToken, changeCurrentPassword, getUserChannelProfile};   
