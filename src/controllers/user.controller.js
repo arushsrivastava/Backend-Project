@@ -42,11 +42,9 @@ const registerUser = asyncHandler(async (req, res) => {
     // Data input
 
 
-    // console.log("printing req.body\n");
-    // console.log(req.body);
+    
     const {username, email, password, fullName } = req.body;
-    // console.log("printing username,email, etc...\n");
-    // console.log(username, email, password, fullName );
+    
  
     // validation
     if (
@@ -413,5 +411,7 @@ const getUserChannelProfile = asyncHandler(async (req, res) => {
         new ApiResponse(200, channel[0], "Channel profile fetched successfully")
     )
 })
+
+// getWatchHistory
 
 export {registerUser, loginUser, logoutUser, refreshAccessToken, changeCurrentPassword, getUserChannelProfile};   
