@@ -32,8 +32,11 @@ const videoSchema = new mongoose.Schema({
         type : mongoose.Schema.Types.ObjectId,
         ref : 'User',
         required : true,
-    }
+    },
+    thumbnail: {
+        type: String, //cloudinary url
+        required: true
+    },
 },{timestamps : true})
-
 videoSchema.plugin(mongooseAggregatePaginate);
 export const Video = mongoose.model('Video',videoSchema);
