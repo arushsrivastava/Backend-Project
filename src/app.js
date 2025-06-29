@@ -20,9 +20,11 @@ app.use(cookieParser()) // cookies ko attach kar dega
 
 import userRouter from './routes/user.routes.js'
 import subscriptionRouter from './routes/subscription.routes.js'
+import videoRouter from './routes/video.routes.js'
 
 app.use('/api/v1/users',userRouter);
 app.use('/api/v1/subscription',subscriptionRouter)
+app.use('/api/v1/videos',videoRouter)
 app.get("/", (req, res) => {
     res.send("Welcome to the Video Sharing Backend API 🚀");
 });
